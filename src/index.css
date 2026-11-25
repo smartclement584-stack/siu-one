@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =====================================
+   SIU ONE — GLOBAL RESPONSIVE FOUNDATION
+===================================== */
+
+:root {
+  font-family: Inter, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  color: #10251a;
+  background: #f5f7f5;
+  color-scheme: light;
+}
+
+/* RESET */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: #f5f7f5;
+}
+
+#root {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-align: left;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* GENERAL ELEMENTS */
+
+img {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* RESPONSIVE TYPOGRAPHY */
+
+@media (max-width: 600px) {
+  :root {
+    font-size: 15px;
+  }
+}
