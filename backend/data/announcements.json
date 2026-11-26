@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "tag": "ACADEMIC",
+    "tagColor": "",
+    "title": "Welcome to the new academic session!",
+    "body": "Stay connected to SIU One for important academic updates.",
+    "author": "University Administration"
+  },
+  {
+    "id": 2,
+    "tag": "COMMUNITY",
+    "tagColor": "orange",
+    "title": "Welcome back, Doers!",
+    "body": "Let's make this academic year productive and memorable.",
+    "author": "Student Board"
+  }
+]

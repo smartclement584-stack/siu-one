@@ -1,64 +1,75 @@
+import { useEffect, useState } from "react";
 import "../App.css";
+import {
+  getStudentAttendance,
+  getGoal,
+  getAnnouncements,
+  getEvents,
+  getCourses,
+} from "../api";
 
 function Dashboard({
   onLogout,
   onOpenGradeSimulator,
-  academicGoal,
-  attendanceSessions,
   currentStudentMatricule,
 }) {
+  const [summary, setSummary] = useState(null);
+  const [academicGoal, setAcademicGoal] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    Promise.all([
+      getStudentAttendance(currentStudentMatricule),
+      getGoal(currentStudentMatricule),
+      getAnnouncements(),
+      getEvents(),
+      getCourses(),
+    ])
+      .then(([attendance, goal, announcementList, eventList, courseList]) => {
+        if (cancelled) return;
+        setSummary(attendance);
+        setAcademicGoal(goal);
+        setAnnouncements(announcementList);
+        setEvents(eventList);
+        setCourses(courseList);
+      })
+      .catch((error) => {
+        if (!cancelled) alert(error.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentStudentMatricule]);
+
+  const totalSessions = summary?.totalSessions ?? 0;
+  const presentCount = summary?.presentCount ?? 0;
+  const absentCount = summary?.absentCount ?? 0;
+  const lateCount = summary?.lateCount ?? 0;
+  const attendanceByDiscipline = summary?.attendanceByDiscipline ?? {};
+  const attendancePercentage = summary?.attendancePercentage;
+
   const stats = [
-    { icon: "📚", label: "My Courses", value: "06", detail: "Active courses" },
-    { icon: "📊", label: "Attendance", value: "92%", detail: "Overall attendance" },
+    {
+      icon: "📚",
+      label: "My Courses",
+      value: String(courses.length).padStart(2, "0"),
+      detail: "Active courses",
+    },
+    {
+      icon: "📊",
+      label: "Attendance",
+      value:
+        attendancePercentage == null ? "—" : `${attendancePercentage}%`,
+      detail: "Overall attendance",
+    },
     { icon: "🏆", label: "Current GPA", value: "3.82", detail: "Academic performance" },
     { icon: "📝", label: "Assignments", value: "04", detail: "Pending submissions" },
   ];
-
-  const events = [
-    { day: "MON", date: "23", title: "Database Systems", time: "10:00 AM" },
-    { day: "WED", date: "25", title: "Software Engineering", time: "2:00 PM" },
-    { day: "FRI", date: "27", title: "Mathematics", time: "9:00 AM" },
-  ];
-  const studentSessions = attendanceSessions.filter((session) =>
-  ["Present", "Absent", "Late"].includes(
-    session.attendance[currentStudentMatricule]
-  )
-);
-
-const totalSessions = studentSessions.length;
-
-const presentCount = studentSessions.filter(
-  (session) => session.attendance[currentStudentMatricule] === "Present"
-).length;
-
-const absentCount = studentSessions.filter(
-  (session) => session.attendance[currentStudentMatricule] === "Absent"
-).length;
-const attendanceByDiscipline = studentSessions.reduce((result, session) => {
-  const discipline = session.discipline;
-  const status = session.attendance[currentStudentMatricule];
-
-  if (!result[discipline]) {
-    result[discipline] = {
-      total: 0,
-      present: 0,
-      late: 0,
-      absent: 0,
-    };
-  }
-
-  result[discipline].total += 1;
-
-  if (status === "Present") result[discipline].present += 1;
-  if (status === "Late") result[discipline].late += 1;
-  if (status === "Absent") result[discipline].absent += 1;
-
-  return result;
-}, {});
-
-const lateCount = studentSessions.filter(
-  (session) => session.attendance[currentStudentMatricule] === "Late"
-).length;
 
   return (
     <div className="dashboard-layout">
@@ -181,7 +192,7 @@ const lateCount = studentSessions.filter(
             </div>
 
             {events.map((event) => (
-              <div className="event-item" key={event.title}>
+              <div className="event-item" key={event.id}>
                 <div className="event-date">
                   <strong>{event.date}</strong>
                   <span>{event.day}</span>
@@ -200,19 +211,20 @@ const lateCount = studentSessions.filter(
               <a href="#announcements">View all →</a>
             </div>
 
-            <article className="announcement-item">
-              <span className="announcement-tag">ACADEMIC</span>
-              <h4>Welcome to the new academic session!</h4>
-              <p>Stay connected to SIU One for important academic updates.</p>
-              <small>University Administration</small>
-            </article>
-
-            <article className="announcement-item">
-              <span className="announcement-tag orange-tag">COMMUNITY</span>
-              <h4>Welcome back, Doers!</h4>
-              <p>Let's make this academic year productive and memorable.</p>
-              <small>Student Board</small>
-            </article>
+            {announcements.map((announcement) => (
+              <article className="announcement-item" key={announcement.id}>
+                <span
+                  className={`announcement-tag${
+                    announcement.tagColor ? ` ${announcement.tagColor}-tag` : ""
+                  }`}
+                >
+                  {announcement.tag}
+                </span>
+                <h4>{announcement.title}</h4>
+                <p>{announcement.body}</p>
+                <small>{announcement.author}</small>
+              </article>
+            ))}
           </section>
                   <section className="dashboard-section">
           <div className="section-heading">

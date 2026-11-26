@@ -1,15 +1,37 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../App.css";
+import { getStudents, getSessions, saveSession as postSession, getCourses } from "../api";
 
-function DelegateAttendance({ onLogout, sessions, setSessions }) {
-  const students = [
-    { id: 1, name: "Student One", matricule: "SIU001" },
-    { id: 2, name: "Student Two", matricule: "SIU002" },
-    { id: 3, name: "Student Three", matricule: "SIU003" },
-    { id: 4, name: "Student Four", matricule: "SIU004" },
-    { id: 5, name: "Student Five", matricule: "SIU005" },
-  ];
+function DelegateAttendance({ onLogout }) {
+  const [students, setStudents] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    Promise.all([getStudents(), getSessions(), getCourses()])
+      .then(([studentList, sessionList, courseList]) => {
+        if (cancelled) return;
+        setStudents(
+          studentList.map((student) => ({
+            id: student.id,
+            name: student.fullName,
+            matricule: student.matricule,
+          }))
+        );
+        setSessions(sessionList);
+        setCourses(courseList);
+      })
+      .catch((error) => {
+        if (!cancelled) alert(error.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const [attendance, setAttendance] = useState({});
   const [search, setSearch] = useState("");
@@ -43,13 +65,13 @@ function DelegateAttendance({ onLogout, sessions, setSessions }) {
       [id]: status,
     }));
   }
-  function saveSession() {
+  async function saveSession() {
   if (!discipline || !sessionDate) {
     alert("Please select a discipline and session date.");
     return;
   }
 
-  if (Object.keys(attendance).length !== students.length) {
+  if (students.length === 0 || Object.keys(attendance).length !== students.length) {
     alert("Please mark every student's attendance before saving.");
     return;
   }
@@ -59,21 +81,24 @@ function DelegateAttendance({ onLogout, sessions, setSessions }) {
   attendanceByMatricule[student.matricule] = attendance[student.id];
 });
 
-  const newSession = {
-    id: Date.now(),
-    trimester,
-    week,
-    discipline,
-    sessionDate,
-    attendance: attendanceByMatricule,
-  };
+  try {
+    const savedSession = await postSession({
+      trimester,
+      week,
+      discipline,
+      sessionDate,
+      attendance: attendanceByMatricule,
+    });
 
-  setSessions((previous) => [...previous, newSession]);
+    setSessions((previous) => [...previous, savedSession]);
 
-  setAttendance({});
-  setReportGenerated(false);
+    setAttendance({});
+    setReportGenerated(false);
 
-  alert("Attendance session saved successfully!");
+    alert("Attendance session saved successfully!");
+  } catch (error) {
+    alert(error.message);
+  }
 }
   const [reportGenerated, setReportGenerated] = useState(false);
   
@@ -196,11 +221,9 @@ function DelegateAttendance({ onLogout, sessions, setSessions }) {
         onChange={(event) => setDiscipline(event.target.value)}
       >
         <option value="">Select a discipline</option>
-        <option>Mathematics</option>
-        <option>Database Systems</option>
-        <option>Web Development</option>
-        <option>Data Structures and Algorithms</option>
-        <option>Linux Fundamentals</option>
+        {courses.map((course) => (
+          <option key={course.id}>{course.name}</option>
+        ))}
       </select>
     </div>
 

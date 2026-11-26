@@ -1,16 +1,26 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../App.css";
+import { getCourses, saveGoal } from "../api";
 
-function GradeSimulator({ onBack, onSaveGoal }) {
-  const disciplines = [
-    "Database Systems",
-    "Software Engineering",
-    "Mathematics",
-    "Web Development",
-    "Data Structures and Algorithms",
-    "Linux Fundamentals",
-  ];
+function GradeSimulator({ onBack, currentStudentMatricule }) {
+  const [disciplines, setDisciplines] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getCourses()
+      .then((courses) => {
+        if (!cancelled) setDisciplines(courses.map((course) => course.name));
+      })
+      .catch((error) => {
+        if (!cancelled) alert(error.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const [selectedDiscipline, setSelectedDiscipline] = useState("");
 
@@ -82,6 +92,22 @@ function GradeSimulator({ onBack, onSaveGoal }) {
       target: Number(target),
       required: required.toFixed(2),
     };
+  }
+
+  async function handleSaveGoal() {
+    try {
+      await saveGoal(currentStudentMatricule, {
+        discipline: selectedDiscipline,
+        target: simulationResult.target,
+        requiredFinal:
+          simulationResult.status === "possible"
+            ? simulationResult.required
+            : "Already secured",
+      });
+      alert("Academic goal saved!");
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   // Calculate the result once per render
@@ -314,18 +340,7 @@ function GradeSimulator({ onBack, onSaveGoal }) {
                   {` ${selectedDiscipline}`}?
                 </p>
 
-                <button
-                  onClick={() =>
-                    onSaveGoal({
-                      discipline: selectedDiscipline,
-                      target: simulationResult.target,
-                      requiredFinal:
-                        simulationResult.status === "possible"
-                          ? simulationResult.required
-                          : "Already secured",
-                    })
-                  }
-                >
+                <button onClick={handleSaveGoal}>
                   Yes, set my goal
                 </button>
               </div>

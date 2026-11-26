@@ -1,6 +1,7 @@
 import "./App.css";
 import studentPhoto from "./assets/student-campus.jpeg";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { login, register, delegateLogin, logout } from "./api";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -251,46 +252,46 @@ function ProfileSelection({ onBack, onSelectStudent, onSelectDelegate  }) {
 
 function App() {
   const [page, setPage] = useState("home");
-  const [academicGoal, setAcademicGoal] = useState(null);
-  const [attendanceSessions, setAttendanceSessions] = useState(() => {
-  const savedSessions = localStorage.getItem("attendanceSessions");
-  return savedSessions ? JSON.parse(savedSessions) : [];
-});
+  const [currentStudentMatricule, setCurrentStudentMatricule] = useState("");
 
-const [currentStudentMatricule, setCurrentStudentMatricule] = useState(() => {
-  return localStorage.getItem("currentStudentMatricule") || "";
-});
-useEffect(() => {
-  localStorage.setItem(
-    "attendanceSessions",
-    JSON.stringify(attendanceSessions)
-  );
-}, [attendanceSessions]);
+  async function handleLogin(event) {
+    event.preventDefault();
 
-useEffect(() => {
-  localStorage.setItem(
-    "currentStudentMatricule",
-    currentStudentMatricule
-  );
-}, [currentStudentMatricule]);
+    const formData = new FormData(event.target);
+    const matricule = (formData.get("matricule") || "").trim();
+    const password = formData.get("password");
 
-  function handleLogin(event) {
-  event.preventDefault();
+    if (!matricule) {
+      alert("Please enter your matricule.");
+      return;
+    }
 
-  const formData = new FormData(event.target);
-  const matricule = formData.get("matricule");
-
-  if (!matricule) {
-    alert("Please enter your matricule.");
-    return;
+    try {
+      const { student } = await login(matricule, password);
+      setCurrentStudentMatricule(student.matricule);
+      setPage("dashboard");
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
-  
-  setCurrentStudentMatricule(matricule.trim().toUpperCase());
-  setPage("dashboard");
-}
+  async function handleDelegateLogin(event) {
+    event.preventDefault();
 
-  function handleRegister(event) {
+    const formData = new FormData(event.target);
+
+    try {
+      await delegateLogin(
+        (formData.get("delegateId") || "").trim(),
+        formData.get("password")
+      );
+      setPage("delegate-attendance");
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  async function handleRegister(event) {
     event.preventDefault();
 
     const formData = new FormData(event.target);
@@ -303,7 +304,27 @@ useEffect(() => {
       return;
     }
 
-    alert("Registration form submitted successfully!");
+    try {
+      await register({
+        fullName: formData.get("fullName"),
+        sex: formData.get("sex"),
+        department: formData.get("department"),
+        level: formData.get("level"),
+        matricule: formData.get("matricule"),
+        admissionYear: formData.get("admissionYear"),
+        password,
+      });
+      alert("Registration successful! You can now sign in.");
+      setPage("login");
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  function handleLogout() {
+    logout();
+    setCurrentStudentMatricule("");
+    setPage("profiles");
   }
 
   // PROFILE SELECTION
@@ -331,19 +352,14 @@ useEffect(() => {
   return (
     <DelegateLogin
       onBack={() => setPage("profiles")}
-      onLogin={(event) => {
-        event.preventDefault();
-        setPage("delegate-attendance");
-      }}
+      onLogin={handleDelegateLogin}
     />
   );
 }
 if (page === "delegate-attendance") {
   return (
     <DelegateAttendance
-      onLogout={() => setPage("profiles")}
-      sessions={attendanceSessions}
-      setSessions={setAttendanceSessions}
+      onLogout={handleLogout}
     />
   );
 }
@@ -361,10 +377,8 @@ if (page === "delegate-attendance") {
 if (page === "dashboard") {
   return (
     <Dashboard
-  onLogout={() => setPage("profiles")}
+  onLogout={handleLogout}
   onOpenGradeSimulator={() => setPage("grade-simulator")}
-  academicGoal={academicGoal}
-  attendanceSessions={attendanceSessions}
   currentStudentMatricule={currentStudentMatricule}
 />
   );
@@ -376,7 +390,7 @@ if (page === "grade-simulator") {
   return (
     <GradeSimulator
       onBack={() => setPage("dashboard")}
-      onSaveGoal={(goal) => setAcademicGoal(goal)}
+      currentStudentMatricule={currentStudentMatricule}
     />
   );
 }

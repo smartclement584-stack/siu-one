@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "fullName": "Student One",
+    "sex": "Male",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "matricule": "SIU001",
+    "admissionYear": "2025",
+    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
+    "createdAt": "2026-11-26T22:47:35.869Z"
+  },
+  {
+    "id": 2,
+    "fullName": "Student Two",
+    "sex": "Female",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "matricule": "SIU002",
+    "admissionYear": "2025",
+    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
+    "createdAt": "2026-11-26T22:47:35.869Z"
+  },
+  {
+    "id": 3,
+    "fullName": "Student Three",
+    "sex": "Male",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "matricule": "SIU003",
+    "admissionYear": "2025",
+    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
+    "createdAt": "2026-11-26T22:47:35.869Z"
+  },
+  {
+    "id": 4,
+    "fullName": "Student Four",
+    "sex": "Female",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "matricule": "SIU004",
+    "admissionYear": "2025",
+    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
+    "createdAt": "2026-11-26T22:47:35.869Z"
+  },
+  {
+    "id": 5,
+    "fullName": "Student Five",
+    "sex": "Male",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "matricule": "SIU005",
+    "admissionYear": "2025",
+    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
+    "createdAt": "2026-11-26T22:47:35.869Z"
+  },
+  {
+    "id": 6,
+    "fullName": "NDONG CLEMENT",
+    "sex": "Male",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "matricule": "SIU25SWE013",
+    "admissionYear": "2025",
+    "passwordHash": "$2b$10$ROeW1lfN4l0fnMexjDARuOOuz0rUHI3AbcJ9oWTo97Ycok8GRrDsG",
+    "createdAt": "2026-11-26T22:52:58.301Z"
+  }
+]

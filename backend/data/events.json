@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "day": "MON",
+    "date": "23",
+    "title": "Database Systems",
+    "time": "10:00 AM"
+  },
+  {
+    "id": 2,
+    "day": "WED",
+    "date": "25",
+    "title": "Software Engineering",
+    "time": "2:00 PM"
+  },
+  {
+    "id": 3,
+    "day": "FRI",
+    "date": "27",
+    "title": "Mathematics",
+    "time": "9:00 AM"
+  }
+]

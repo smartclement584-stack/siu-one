@@ -1,0 +1,10 @@
+[
+  {
+    "id": 1,
+    "delegateId": "DEL001",
+    "fullName": "Demo Delegate",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "passwordHash": "$2b$10$qfMR1A4MX.E4/YJb6SWPN.uW2JnJDTZP0FhM9R8.gaJJNvmg9PLaa"
+  }
+]
