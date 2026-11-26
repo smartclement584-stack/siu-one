@@ -1,9 +1,14 @@
 
 import { useEffect, useState } from "react";
 import "../App.css";
-import { getCourses, saveGoal } from "../api";
+import { getCourses, saveGoal, reportError } from "../api";
+import { useAuth } from "../auth/useAuth";
+import { ScrollLink } from "../components/NavItems";
 
-function GradeSimulator({ onBack, currentStudentMatricule }) {
+function GradeSimulator({ onBack }) {
+  // The route guard guarantees a verified student session here.
+  const { user } = useAuth();
+  const currentStudentMatricule = user.matricule;
   const [disciplines, setDisciplines] = useState([]);
 
   useEffect(() => {
@@ -14,7 +19,7 @@ function GradeSimulator({ onBack, currentStudentMatricule }) {
         if (!cancelled) setDisciplines(courses.map((course) => course.name));
       })
       .catch((error) => {
-        if (!cancelled) alert(error.message);
+        if (!cancelled) reportError(error);
       });
 
     return () => {
@@ -106,7 +111,7 @@ function GradeSimulator({ onBack, currentStudentMatricule }) {
       });
       alert("Academic goal saved!");
     } catch (error) {
-      alert(error.message);
+      reportError(error);
     }
   }
 
@@ -124,13 +129,19 @@ function GradeSimulator({ onBack, currentStudentMatricule }) {
         <p className="sidebar-label">ACADEMIC TOOLS</p>
 
         <nav className="dashboard-nav">
-          <a href="#dashboard" onClick={onBack}>
+          <a
+            href="/dashboard"
+            onClick={(event) => {
+              event.preventDefault();
+              onBack();
+            }}
+          >
             ⌂ <span>Dashboard</span>
           </a>
 
-          <a className="selected" href="#simulator">
+          <ScrollLink className="selected" to="simulator">
             ▥ <span>Grade Simulator</span>
-          </a>
+          </ScrollLink>
         </nav>
 
         <div className="sidebar-bottom">

@@ -2509,3 +2509,18 @@ textarea {
     gap: 12px;
   }
 }
+/* Navigation items for features that are not built yet */
+.is-disabled,
+.is-disabled:hover {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+.route-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: #11603f;
+  font-weight: 600;
+}

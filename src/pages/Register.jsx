@@ -10,7 +10,7 @@ function Register({ onBack, onLogin, onRegister }) {
 
       <div className="auth-card register-card">
         <button className="back-link" onClick={onBack}>
-          ← Back to home
+          ← Back to sign in
         </button>
 
         <div className="auth-heading">

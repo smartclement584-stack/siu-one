@@ -1,4 +1,5 @@
 import "../App.css";
+import { ComingSoon } from "../components/NavItems";
 
 function Login({ onBack, onRegister, onLogin }) {
   return (
@@ -10,7 +11,7 @@ function Login({ onBack, onRegister, onLogin }) {
 
       <div className="auth-card">
         <button className="back-link" onClick={onBack}>
-          ← Back to home
+          ← Back to profiles
         </button>
 
         <div className="auth-heading">
@@ -39,10 +40,12 @@ function Login({ onBack, onRegister, onLogin }) {
 
           <div className="auth-options">
             <label className="remember-option">
-              <input type="checkbox" />
+              <input type="checkbox" name="remember" />
               Remember me
             </label>
-            <a href="#forgot">Forgot password?</a>
+            <ComingSoon title="Password reset is not available yet">
+              Forgot password?
+            </ComingSoon>
           </div>
 
           <button className="auth-submit" type="submit">

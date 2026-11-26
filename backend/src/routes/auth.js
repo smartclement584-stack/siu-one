@@ -1,7 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import { readJSON, writeJSON, nextId } from "../db.js";
-import { signToken } from "../middleware/auth.js";
+import { signToken, requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 const SEXES = ["Male", "Female"];
@@ -92,6 +92,20 @@ router.post("/delegate-login", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// Source of truth for "who am I": re-reads the account from the JSON store on every call,
+// so a deleted account or changed role stops working even while its JWT is still valid.
+router.get("/me", requireAuth, (req, res) => {
+  const { matricule, role } = req.user;
+  if (role === "student") {
+    const student = readJSON("students").find((s) => s.matricule === matricule);
+    if (student) return res.json({ role, matricule, profile: publicStudent(student) });
+  } else if (role === "delegate") {
+    const delegate = readJSON("delegates").find((d) => d.delegateId === matricule);
+    if (delegate) return res.json({ role, matricule, profile: publicStudent(delegate) });
+  }
+  res.status(401).json({ error: "Account no longer exists." });
 });
 
 export default router;

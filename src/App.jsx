@@ -1,7 +1,10 @@
 import "./App.css";
 import studentPhoto from "./assets/student-campus.jpeg";
-import { useState } from "react";
-import { login, register, delegateLogin, logout } from "./api";
+import { Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
+import { register } from "./api";
+import { useAuth } from "./auth/useAuth";
+import ProtectedRoute from "./auth/ProtectedRoute";
+import { ScrollLink, ComingSoon } from "./components/NavItems";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -11,7 +14,7 @@ import GradeSimulator from "./pages/GradeSimulator";
 
 function Logo() {
   return (
-    <a className="brand" href="#home">
+    <Link className="brand" to="/">
       <svg viewBox="0 0 48 44" className="brand-icon">
         <path
           d="M24 2c-5 5-6.5 9.5-3.5 14
@@ -35,7 +38,7 @@ function Logo() {
         <strong>SIU <i>One</i></strong>
         <small>SEVEN INTERNATIONAL UNIVERSITY</small>
       </span>
-    </a>
+    </Link>
   );
 }
 
@@ -46,11 +49,11 @@ function Header({onLogin }) {
         <Logo />
 
         <nav className="navigation">
-          <a className="active" href="#home">Home</a>
-          <a href="#about">About</a>
-          <a href="#features">Features</a>
-          <a href="#news">News</a>
-          <a href="#contact">Contact</a>
+          <ScrollLink className="active" to="home">Home</ScrollLink>
+          <ComingSoon>About</ComingSoon>
+          <ScrollLink to="features">Features</ScrollLink>
+          <ComingSoon>News</ComingSoon>
+          <ScrollLink to="contact">Contact</ScrollLink>
         </nav>
 
         <button className="login-button" onClick={onLogin}>
@@ -82,9 +85,9 @@ function Hero({onGetStarted}) {
             <button className="btn primary" onClick={onGetStarted}>
                 Get Started <span>→</span>
             </button>
-            <a className="btn secondary" href="#features">
+            <ScrollLink className="btn secondary" to="features">
               <span>▶</span> Watch Demo
-            </a>
+            </ScrollLink>
           </div>
         </div>
 
@@ -250,16 +253,44 @@ function ProfileSelection({ onBack, onSelectStudent, onSelectDelegate  }) {
   );
 }
 
-function App() {
-  const [page, setPage] = useState("home");
-  const [currentStudentMatricule, setCurrentStudentMatricule] = useState("");
+function Landing() {
+  const navigate = useNavigate();
+
+  return (
+    <>
+      <Header onLogin={() => navigate("/profiles")} />
+
+      <main>
+        <Hero onGetStarted={() => navigate("/profiles")} />
+        <Features />
+      </main>
+
+      <Footer />
+    </>
+  );
+}
+
+function ProfilesRoute() {
+  const navigate = useNavigate();
+
+  return (
+    <ProfileSelection
+      onBack={() => navigate("/")}
+      onSelectStudent={() => navigate("/login")}
+      onSelectDelegate={() => navigate("/delegate-login")}
+    />
+  );
+}
+
+function LoginRoute() {
+  const navigate = useNavigate();
+  const { signInStudent } = useAuth();
 
   async function handleLogin(event) {
     event.preventDefault();
 
     const formData = new FormData(event.target);
     const matricule = (formData.get("matricule") || "").trim();
-    const password = formData.get("password");
 
     if (!matricule) {
       alert("Please enter your matricule.");
@@ -267,29 +298,28 @@ function App() {
     }
 
     try {
-      const { student } = await login(matricule, password);
-      setCurrentStudentMatricule(student.matricule);
-      setPage("dashboard");
-    } catch (error) {
-      alert(error.message);
-    }
-  }
-
-  async function handleDelegateLogin(event) {
-    event.preventDefault();
-
-    const formData = new FormData(event.target);
-
-    try {
-      await delegateLogin(
-        (formData.get("delegateId") || "").trim(),
-        formData.get("password")
+      await signInStudent(
+        matricule,
+        formData.get("password"),
+        formData.get("remember") === "on"
       );
-      setPage("delegate-attendance");
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       alert(error.message);
     }
   }
+
+  return (
+    <Login
+      onBack={() => navigate("/profiles")}
+      onRegister={() => navigate("/register")}
+      onLogin={handleLogin}
+    />
+  );
+}
+
+function RegisterRoute() {
+  const navigate = useNavigate();
 
   async function handleRegister(event) {
     event.preventDefault();
@@ -315,97 +345,121 @@ function App() {
         password,
       });
       alert("Registration successful! You can now sign in.");
-      setPage("login");
+      navigate("/login", { replace: true });
     } catch (error) {
       alert(error.message);
     }
   }
 
-  function handleLogout() {
-    logout();
-    setCurrentStudentMatricule("");
-    setPage("profiles");
-  }
-
-  // PROFILE SELECTION
-  if (page === "profiles") {
   return (
-    <ProfileSelection
-      onBack={() => setPage("home")}
-      onSelectStudent={() => setPage("login")}
-      onSelectDelegate={() => setPage("delegate-login")}
+    <Register
+      onBack={() => navigate("/login")}
+      onLogin={() => navigate("/login")}
+      onRegister={handleRegister}
     />
   );
 }
 
-  // STUDENT LOGIN
-  if (page === "login") {
-    return (
-      <Login
-        onBack={() => setPage("profiles")}
-        onRegister={() => setPage("register")}
-        onLogin={handleLogin}
-      />
-    );
+function DelegateLoginRoute() {
+  const navigate = useNavigate();
+  const { signInDelegate } = useAuth();
+
+  async function handleDelegateLogin(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+
+    try {
+      await signInDelegate(
+        (formData.get("delegateId") || "").trim(),
+        formData.get("password")
+      );
+      navigate("/delegate/attendance", { replace: true });
+    } catch (error) {
+      alert(error.message);
+    }
   }
-  if (page === "delegate-login") {
+
   return (
     <DelegateLogin
-      onBack={() => setPage("profiles")}
+      onBack={() => navigate("/profiles")}
       onLogin={handleDelegateLogin}
     />
   );
 }
-if (page === "delegate-attendance") {
-  return (
-    <DelegateAttendance
-      onLogout={handleLogout}
-    />
-  );
+
+// Sign out, then land on the profile screen. Going "back" afterwards hits the
+// route guard, which redirects instead of showing stale data.
+function useSignOut() {
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  return () => {
+    signOut();
+    navigate("/profiles", { replace: true });
+  };
 }
-  // STUDENT REGISTRATION
-  if (page === "register") {
-    return (
-      <Register
-        onBack={() => setPage("login")}
-        onLogin={() => setPage("login")}
-        onRegister={handleRegister}
-      />
-    );
-  }
-  // STUDENT DASHBOARD
-if (page === "dashboard") {
+
+function DashboardRoute() {
+  const navigate = useNavigate();
+  const signOut = useSignOut();
+
   return (
     <Dashboard
-  onLogout={handleLogout}
-  onOpenGradeSimulator={() => setPage("grade-simulator")}
-  currentStudentMatricule={currentStudentMatricule}
-/>
-  );
-}
-
-
-// GRADE SIMULATOR
-if (page === "grade-simulator") {
-  return (
-    <GradeSimulator
-      onBack={() => setPage("dashboard")}
-      currentStudentMatricule={currentStudentMatricule}
+      onLogout={signOut}
+      onOpenGradeSimulator={() => navigate("/dashboard/grade-simulator")}
     />
   );
 }
-  // LANDING PAGE
+
+function GradeSimulatorRoute() {
+  const navigate = useNavigate();
+
+  return <GradeSimulator onBack={() => navigate("/dashboard")} />;
+}
+
+function DelegateAttendanceRoute() {
+  const signOut = useSignOut();
+
+  return <DelegateAttendance onLogout={signOut} />;
+}
+
+function App() {
   return (
-    <>
-      <Header onLogin={() => setPage("profiles")} />
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/profiles" element={<ProfilesRoute />} />
+      <Route path="/login" element={<LoginRoute />} />
+      <Route path="/register" element={<RegisterRoute />} />
+      <Route path="/delegate-login" element={<DelegateLoginRoute />} />
 
-      <main>
-        <Hero onGetStarted={() => setPage("profiles")} />
-        <Features />
-      </main>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute role="student" redirectTo="/login">
+            <DashboardRoute />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/grade-simulator"
+        element={
+          <ProtectedRoute role="student" redirectTo="/login">
+            <GradeSimulatorRoute />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/delegate/attendance"
+        element={
+          <ProtectedRoute role="delegate" redirectTo="/delegate-login">
+            <DelegateAttendanceRoute />
+          </ProtectedRoute>
+        }
+      />
 
-      <Footer />
-    </>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

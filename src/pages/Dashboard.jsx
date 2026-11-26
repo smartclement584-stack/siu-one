@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import "../App.css";
+import { useAuth } from "../auth/useAuth";
+import { ScrollLink, ComingSoon } from "../components/NavItems";
 import {
+  reportError,
   getStudentAttendance,
   getGoal,
   getAnnouncements,
@@ -8,11 +11,10 @@ import {
   getCourses,
 } from "../api";
 
-function Dashboard({
-  onLogout,
-  onOpenGradeSimulator,
-  currentStudentMatricule,
-}) {
+function Dashboard({ onLogout, onOpenGradeSimulator }) {
+  // The route guard guarantees a verified student session here.
+  const { user } = useAuth();
+  const currentStudentMatricule = user.matricule;
   const [summary, setSummary] = useState(null);
   const [academicGoal, setAcademicGoal] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
@@ -38,7 +40,7 @@ function Dashboard({
         setCourses(courseList);
       })
       .catch((error) => {
-        if (!cancelled) alert(error.message);
+        if (!cancelled) reportError(error);
       });
 
     return () => {
@@ -84,14 +86,14 @@ function Dashboard({
         <p className="sidebar-label">MAIN MENU</p>
 
         <nav className="dashboard-nav">
-          <a className="selected" href="#dashboard">⌂ <span>Home</span></a>
-          <a href="#courses">▤ <span>My Courses</span></a>
-          <a href="#attendance">◷ <span>Attendance</span></a>
-          <a href="#grades">▥ <span>Grades</span></a>
-          <a href="#assignments">▧ <span>Assignments</span></a>
-          <a href="#announcements">♧ <span>Announcements</span></a>
-          <a href="#calendar">▦ <span>Calendar</span></a>
-          <a href="#messages">✉ <span>Messages</span></a>
+          <ScrollLink className="selected" to="dashboard">⌂ <span>Home</span></ScrollLink>
+          <ComingSoon>▤ <span>My Courses</span></ComingSoon>
+          <ScrollLink to="attendance">◷ <span>Attendance</span></ScrollLink>
+          <ComingSoon>▥ <span>Grades</span></ComingSoon>
+          <ComingSoon>▧ <span>Assignments</span></ComingSoon>
+          <ScrollLink to="announcements">♧ <span>Announcements</span></ScrollLink>
+          <ComingSoon>▦ <span>Calendar</span></ComingSoon>
+          <ComingSoon>✉ <span>Messages</span></ComingSoon>
         </nav>
 
         <div className="sidebar-bottom">
@@ -110,7 +112,12 @@ function Dashboard({
           </div>
 
           <div className="dashboard-user">
-            <button className="notification-button" aria-label="Notifications">
+            <button
+              className="notification-button"
+              aria-label="Notifications"
+              disabled
+              title="Coming soon"
+            >
               ♧
             </button>
             <div className="user-avatar">S</div>
@@ -188,7 +195,7 @@ function Dashboard({
           <section className="dashboard-panel">
             <div className="section-heading">
               <h3>Upcoming Events</h3>
-              <a href="#calendar">View calendar →</a>
+              <ComingSoon>View calendar →</ComingSoon>
             </div>
 
             {events.map((event) => (
@@ -208,7 +215,7 @@ function Dashboard({
           <section className="dashboard-panel" id="announcements">
             <div className="section-heading">
               <h3>Latest Announcements</h3>
-              <a href="#announcements">View all →</a>
+              <ComingSoon>View all →</ComingSoon>
             </div>
 
             {announcements.map((announcement) => (
@@ -226,7 +233,7 @@ function Dashboard({
               </article>
             ))}
           </section>
-                  <section className="dashboard-section">
+                  <section className="dashboard-section" id="attendance">
           <div className="section-heading">
             <h3>Attendance Overview</h3>
             <span>Your attendance record</span>

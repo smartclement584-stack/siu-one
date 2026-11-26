@@ -1,7 +1,14 @@
 
 import { useEffect, useState } from "react";
 import "../App.css";
-import { getStudents, getSessions, saveSession as postSession, getCourses } from "../api";
+import {
+  getStudents,
+  getSessions,
+  saveSession as postSession,
+  getCourses,
+  reportError,
+} from "../api";
+import { ScrollLink, ComingSoon } from "../components/NavItems";
 
 function DelegateAttendance({ onLogout }) {
   const [students, setStudents] = useState([]);
@@ -25,7 +32,7 @@ function DelegateAttendance({ onLogout }) {
         setCourses(courseList);
       })
       .catch((error) => {
-        if (!cancelled) alert(error.message);
+        if (!cancelled) reportError(error);
       });
 
     return () => {
@@ -97,7 +104,7 @@ function DelegateAttendance({ onLogout }) {
 
     alert("Attendance session saved successfully!");
   } catch (error) {
-    alert(error.message);
+    reportError(error);
   }
 }
   const [reportGenerated, setReportGenerated] = useState(false);
@@ -126,8 +133,8 @@ function DelegateAttendance({ onLogout }) {
         <p className="delegate-menu-label">CLASS MANAGEMENT</p>
 
         <nav className="delegate-nav">
-          <a className="active" href="#attendance">▦ <span>Attendance</span></a>
-          <a href="#students">♙ <span>My Students</span></a>
+          <ScrollLink className="active" to="attendance">▦ <span>Attendance</span></ScrollLink>
+          <ComingSoon>♙ <span>My Students</span></ComingSoon>
         </nav>
 
         <div className="delegate-sidebar-bottom">
@@ -312,12 +319,69 @@ function DelegateAttendance({ onLogout }) {
     ✓ Save Attendance
   </button>
 
-  <button type="button" className="delegate-send-report">
+  <button
+    type="button"
+    className="delegate-send-report"
+    onClick={generateReport}
+  >
     <span>✉</span>
-    Send Recap to Teacher
+    Generate Recap
   </button>
 </div>
         </section>
+        {/* RECAP OF THE SESSION BEING MARKED */}
+{reportGenerated && (
+  <section className="delegate-student-panel" id="recap">
+    <div className="delegate-panel-heading">
+      <div>
+        <h2>Attendance Recap</h2>
+        <p>Summary of the session you are currently marking.</p>
+      </div>
+
+      <span className="delegate-count">
+        {Object.keys(attendance).length}/{students.length} marked
+      </span>
+    </div>
+
+    <article className="attendance-history-item">
+      <div>
+        <h3>{discipline}</h3>
+        <p>
+          {trimester} · {week} · {sessionDate}
+        </p>
+      </div>
+
+      <div className="attendance-history-stats">
+        <span className="history-present">{present} Present</span>
+        <span className="history-late">{late} Late</span>
+        <span className="history-absent">{absent} Absent</span>
+      </div>
+    </article>
+
+    {["Absent", "Late"].map((status) => {
+      const names = students
+        .filter((student) => attendance[student.id] === status)
+        .map((student) => `${student.name} (${student.matricule})`);
+
+      return names.length > 0 ? (
+        <p key={status}>
+          <strong>{status}:</strong> {names.join(", ")}
+        </p>
+      ) : null;
+    })}
+
+    <div className="delegate-report-actions">
+      <button
+        type="button"
+        className="delegate-send-report"
+        onClick={() => setReportGenerated(false)}
+      >
+        Close recap
+      </button>
+    </div>
+  </section>
+)}
+
         {/* SAVED ATTENDANCE SESSIONS */}
 <section className="delegate-student-panel">
   <div className="delegate-panel-heading">

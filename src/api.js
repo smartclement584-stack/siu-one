@@ -3,18 +3,21 @@ export const BASE_URL =
 
 const TOKEN_KEY = "siuToken";
 
+// "Remember me" -> localStorage (survives closing the browser);
+// otherwise sessionStorage (survives refresh, cleared when the tab closes).
 export function getToken() {
   try {
-    return localStorage.getItem(TOKEN_KEY) || "";
+    return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || "";
   } catch {
     return "";
   }
 }
 
-export function setToken(token) {
+export function setToken(token, remember = true) {
   try {
-    if (token) localStorage.setItem(TOKEN_KEY, token);
-    else localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    if (token) (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token);
   } catch {
     // storage unavailable: the token just won't persist
   }
@@ -24,10 +27,19 @@ export function logout() {
   setToken("");
 }
 
-async function request(path, { method = "GET", body } = {}) {
+// Fired when the server rejects a token we sent, so the app can drop the session.
+export const UNAUTHORIZED_EVENT = "siu:unauthorized";
+
+// Shows an error unless it was a 401 (the session is already being cleared and
+// the route guard redirects to the login screen).
+export function reportError(error) {
+  if (error.status !== 401) alert(error.message);
+}
+
+async function request(path, { method = "GET", body, auth = true } = {}) {
   const headers = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  const token = getToken();
+  const token = auth ? getToken() : "";
   if (token) headers.Authorization = `Bearer ${token}`;
 
   let response;
@@ -43,31 +55,44 @@ async function request(path, { method = "GET", body } = {}) {
 
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(data?.error || `Request failed (${response.status}).`);
+    const error = new Error(data?.error || `Request failed (${response.status}).`);
+    error.status = response.status;
+    if (response.status === 401 && token) {
+      setToken("");
+      window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
+    }
+    throw error;
   }
   return data;
 }
 
 const enc = encodeURIComponent;
 
-// Auth
-export async function login(matricule, password) {
-  const data = await request("/auth/login", { method: "POST", body: { matricule, password } });
-  setToken(data.token);
+// Auth (login/register never send a stored token, so a stale one can't mask a bad password)
+export async function login(matricule, password, remember = false) {
+  const data = await request("/auth/login", {
+    method: "POST",
+    body: { matricule, password },
+    auth: false,
+  });
+  setToken(data.token, remember);
   return data;
 }
 
 export const register = (profile) =>
-  request("/auth/register", { method: "POST", body: profile });
+  request("/auth/register", { method: "POST", body: profile, auth: false });
 
 export async function delegateLogin(delegateId, password) {
   const data = await request("/auth/delegate-login", {
     method: "POST",
     body: { delegateId, password },
+    auth: false,
   });
-  setToken(data.token);
+  setToken(data.token, false);
   return data;
 }
+
+export const getMe = () => request("/auth/me");
 
 // Data
 export const getStudents = () => request("/students");
