@@ -5,6 +5,7 @@ import {
   getToken,
   login,
   delegateLogin,
+  staffLogin,
   logout,
   UNAUTHORIZED_EVENT,
 } from "../api";
@@ -67,14 +68,25 @@ function AuthProvider({ children }) {
     });
   }, []);
 
+  // Staff and admin share this; resolves to the role the server assigned.
+  const signInStaff = useCallback(async (staffId, password) => {
+    const { account } = await staffLogin(staffId, password);
+    setState({
+      status: "ready",
+      user: { role: account.role, matricule: account.staffId, profile: account },
+      signedOut: false,
+    });
+    return account.role;
+  }, []);
+
   const signOut = useCallback(() => {
     logout();
     setState({ status: "ready", user: null, signedOut: true });
   }, []);
 
   const value = useMemo(
-    () => ({ ...state, signInStudent, signInDelegate, signOut }),
-    [state, signInStudent, signInDelegate, signOut]
+    () => ({ ...state, signInStudent, signInDelegate, signInStaff, signOut }),
+    [state, signInStudent, signInDelegate, signInStaff, signOut]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

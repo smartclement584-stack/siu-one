@@ -1,12 +1,12 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import { readJSON, writeJSON, nextId } from "../db.js";
-import { signToken, requireAuth } from "../middleware/auth.js";
+import { signToken, requireAuth, STAFF_ROLES } from "../middleware/auth.js";
 
 const router = Router();
 const SEXES = ["Male", "Female"];
 
-const publicStudent = ({ passwordHash, ...rest }) => rest;
+const withoutPassword = ({ passwordHash, ...rest }) => rest;
 const clean = (v) => (typeof v === "string" ? v.trim() : "");
 
 // Same message for unknown user and wrong password: don't reveal which accounts exist.
@@ -51,7 +51,7 @@ router.post("/register", async (req, res, next) => {
     };
     students.push(student);
     writeJSON("students", students);
-    res.status(201).json(publicStudent(student));
+    res.status(201).json(withoutPassword(student));
   } catch (err) {
     next(err);
   }
@@ -69,7 +69,7 @@ router.post("/login", async (req, res, next) => {
       return res.status(401).json(BAD_CREDENTIALS);
     }
     const token = signToken({ matricule: student.matricule, role: "student" });
-    res.json({ token, student: publicStudent(student) });
+    res.json({ token, student: withoutPassword(student) });
   } catch (err) {
     next(err);
   }
@@ -87,8 +87,30 @@ router.post("/delegate-login", async (req, res, next) => {
       return res.status(401).json(BAD_CREDENTIALS);
     }
     const token = signToken({ matricule: delegate.delegateId, role: "delegate" });
-    const { passwordHash, ...safe } = delegate;
-    res.json({ token, delegate: safe });
+    res.json({ token, delegate: withoutPassword(delegate) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// One login for staff and admin; the role comes from the stored account, never the request.
+router.post("/staff-login", async (req, res, next) => {
+  try {
+    const staffId = clean(req.body.staffId).toUpperCase();
+    const password = typeof req.body.password === "string" ? req.body.password : "";
+    if (!staffId || !password) {
+      return res.status(400).json({ error: "Staff ID and password are required." });
+    }
+    const account = readJSON("staffAndAdmin").find((a) => a.staffId === staffId);
+    if (
+      !account ||
+      !STAFF_ROLES.includes(account.role) ||
+      !(await bcrypt.compare(password, account.passwordHash))
+    ) {
+      return res.status(401).json(BAD_CREDENTIALS);
+    }
+    const token = signToken({ matricule: account.staffId, role: account.role });
+    res.json({ token, account: withoutPassword(account) });
   } catch (err) {
     next(err);
   }
@@ -100,10 +122,15 @@ router.get("/me", requireAuth, (req, res) => {
   const { matricule, role } = req.user;
   if (role === "student") {
     const student = readJSON("students").find((s) => s.matricule === matricule);
-    if (student) return res.json({ role, matricule, profile: publicStudent(student) });
+    if (student) return res.json({ role, matricule, profile: withoutPassword(student) });
   } else if (role === "delegate") {
     const delegate = readJSON("delegates").find((d) => d.delegateId === matricule);
-    if (delegate) return res.json({ role, matricule, profile: publicStudent(delegate) });
+    if (delegate) return res.json({ role, matricule, profile: withoutPassword(delegate) });
+  } else if (STAFF_ROLES.includes(role)) {
+    const account = readJSON("staffAndAdmin").find(
+      (a) => a.staffId === matricule && a.role === role
+    );
+    if (account) return res.json({ role, matricule, profile: withoutPassword(account) });
   }
   res.status(401).json({ error: "Account no longer exists." });
 });

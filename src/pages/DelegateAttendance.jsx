@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "../App.css";
 import {
   getStudents,
@@ -134,6 +135,7 @@ function DelegateAttendance({ onLogout }) {
 
         <nav className="delegate-nav">
           <ScrollLink className="active" to="attendance">▦ <span>Attendance</span></ScrollLink>
+          <Link to="/delegate/disputes">⚑ <span>Disputes</span></Link>
           <ComingSoon>♙ <span>My Students</span></ComingSoon>
         </nav>
 

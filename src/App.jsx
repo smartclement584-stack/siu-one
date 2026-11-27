@@ -10,6 +10,13 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import DelegateLogin from "./pages/DelegateLogin";
 import DelegateAttendance from "./pages/DelegateAttendance";
+import StaffLogin from "./pages/StaffLogin";
+import StaffClasses from "./pages/StaffClasses";
+import AdminCourses from "./pages/AdminCourses";
+import AdminAnnouncements from "./pages/AdminAnnouncements";
+import AdminCalendar from "./pages/AdminCalendar";
+import PortalLayout from "./components/PortalLayout";
+import DisputeQueue from "./components/DisputeQueue";
 import GradeSimulator from "./pages/GradeSimulator";
 
 function Logo() {
@@ -160,32 +167,32 @@ function Footer() {
   );
 }
 
-function ProfileSelection({ onBack, onSelectStudent, onSelectDelegate  }) {
+function ProfileSelection({ onBack, onSelect }) {
   const profiles = [
     {
       icon: "🎓",
       title: "Student",
       description: "Access your academic space, courses and results.",
-      available: true,
+      path: "/login",
     },
     {
       icon: "🛡️",
-      title: "Super Administrator",
-      description: "Manage the university platform and its users.",
-      available: false,
+      title: "Administration",
+      description: "For university administration and the Student Board.",
+      path: "/admin-login",
     },
     {
       icon: "👥",
-      title: "Sector Supervisor",
-      description: "Supervise academic and administrative activities.",
-      available: false,
+      title: "Lecturer / Supervisor",
+      description: "Manage your courses, class sessions and attendance.",
+      path: "/staff-login",
     },
     {
-  icon: "📋",
-  title: "Class Delegate",
-  description: "Manage class attendance and student records.",
-  available: true,
-},
+      icon: "📋",
+      title: "Class Delegate",
+      description: "Manage class attendance and student records.",
+      path: "/delegate-login",
+    },
   ];
 
   return (
@@ -214,17 +221,8 @@ function ProfileSelection({ onBack, onSelectStudent, onSelectDelegate  }) {
           {profiles.map((profile) => (
             <button
               key={profile.title}
-              className={`profile-card ${
-                profile.available ? "available" : "unavailable"
-              }`}
-              disabled={!profile.available}
-              onClick={
-     profile.available
-    ? profile.title === "Class Delegate"
-      ? onSelectDelegate
-      : onSelectStudent
-    : undefined
-}
+              className="profile-card available"
+              onClick={() => onSelect(profile.path)}
             >
               <span className="profile-icon">{profile.icon}</span>
 
@@ -236,11 +234,7 @@ function ProfileSelection({ onBack, onSelectStudent, onSelectDelegate  }) {
                 {profile.description}
               </span>
 
-              <span className="profile-action">
-                {profile.available
-                  ? "Continue →"
-                  : "Coming soon"}
-              </span>
+              <span className="profile-action">Continue →</span>
             </button>
           ))}
         </div>
@@ -276,8 +270,7 @@ function ProfilesRoute() {
   return (
     <ProfileSelection
       onBack={() => navigate("/")}
-      onSelectStudent={() => navigate("/login")}
-      onSelectDelegate={() => navigate("/delegate-login")}
+      onSelect={(path) => navigate(path)}
     />
   );
 }
@@ -388,6 +381,37 @@ function DelegateLoginRoute() {
   );
 }
 
+function StaffLoginRoute({ title, description }) {
+  const navigate = useNavigate();
+  const { signInStaff } = useAuth();
+
+  async function handleStaffLogin(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+
+    try {
+      const role = await signInStaff(
+        (formData.get("staffId") || "").trim(),
+        formData.get("password")
+      );
+      // The account decides the destination, whichever form was used.
+      navigate(role === "admin" ? "/admin" : "/staff", { replace: true });
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  return (
+    <StaffLogin
+      title={title}
+      description={description}
+      onBack={() => navigate("/profiles")}
+      onLogin={handleStaffLogin}
+    />
+  );
+}
+
 // Sign out, then land on the profile screen. Going "back" afterwards hits the
 // route guard, which redirects instead of showing stale data.
 function useSignOut() {
@@ -424,6 +448,27 @@ function DelegateAttendanceRoute() {
   return <DelegateAttendance onLogout={signOut} />;
 }
 
+// A delegate, staff or admin page: role-guarded and wrapped in the shared layout.
+function portalPage(role, redirectTo, title, content) {
+  return (
+    <ProtectedRoute role={role} redirectTo={redirectTo}>
+      <PortalRoute key={title} title={title}>
+        {content}
+      </PortalRoute>
+    </ProtectedRoute>
+  );
+}
+
+function PortalRoute({ title, children }) {
+  const signOut = useSignOut();
+
+  return (
+    <PortalLayout title={title} onLogout={signOut}>
+      {children}
+    </PortalLayout>
+  );
+}
+
 function App() {
   return (
     <Routes>
@@ -432,6 +477,27 @@ function App() {
       <Route path="/login" element={<LoginRoute />} />
       <Route path="/register" element={<RegisterRoute />} />
       <Route path="/delegate-login" element={<DelegateLoginRoute />} />
+
+      <Route
+        path="/staff-login"
+        element={
+          <StaffLoginRoute
+            key="staff"
+            title="Lecturer / Supervisor Login"
+            description="Access your teaching and supervision space."
+          />
+        }
+      />
+      <Route
+        path="/admin-login"
+        element={
+          <StaffLoginRoute
+            key="admin"
+            title="Administration Login"
+            description="Access university administration tools."
+          />
+        }
+      />
 
       <Route
         path="/dashboard"
@@ -456,6 +522,37 @@ function App() {
             <DelegateAttendanceRoute />
           </ProtectedRoute>
         }
+      />
+
+      <Route
+        path="/delegate/disputes"
+        element={portalPage("delegate", "/delegate-login", "Attendance Disputes", <DisputeQueue />)}
+      />
+
+      <Route
+        path="/staff"
+        element={portalPage("staff", "/staff-login", "Classes & Attendance", <StaffClasses />)}
+      />
+      <Route
+        path="/staff/disputes"
+        element={portalPage("staff", "/staff-login", "Attendance Disputes", <DisputeQueue />)}
+      />
+
+      <Route
+        path="/admin"
+        element={portalPage("admin", "/admin-login", "Course Management", <AdminCourses />)}
+      />
+      <Route
+        path="/admin/announcements"
+        element={portalPage("admin", "/admin-login", "Announcements", <AdminAnnouncements />)}
+      />
+      <Route
+        path="/admin/calendar"
+        element={portalPage("admin", "/admin-login", "Assessment Calendar", <AdminCalendar />)}
+      />
+      <Route
+        path="/admin/disputes"
+        element={portalPage("admin", "/admin-login", "Attendance Disputes", <DisputeQueue />)}
       />
 
       <Route path="*" element={<Navigate to="/" replace />} />

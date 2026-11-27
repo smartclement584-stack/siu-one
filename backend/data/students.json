@@ -7,8 +7,8 @@
     "level": "Level 2",
     "matricule": "SIU001",
     "admissionYear": "2025",
-    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
-    "createdAt": "2026-11-26T22:47:35.869Z"
+    "passwordHash": "$2b$10$NJz7Vho7ygO2i9b67X7hoemOHBnfE1QSvmFnCJFj6zBCQ71HCOOl2",
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 2,
@@ -18,8 +18,8 @@
     "level": "Level 2",
     "matricule": "SIU002",
     "admissionYear": "2025",
-    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
-    "createdAt": "2026-11-26T22:47:35.869Z"
+    "passwordHash": "$2b$10$NJz7Vho7ygO2i9b67X7hoemOHBnfE1QSvmFnCJFj6zBCQ71HCOOl2",
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 3,
@@ -29,8 +29,8 @@
     "level": "Level 2",
     "matricule": "SIU003",
     "admissionYear": "2025",
-    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
-    "createdAt": "2026-11-26T22:47:35.869Z"
+    "passwordHash": "$2b$10$NJz7Vho7ygO2i9b67X7hoemOHBnfE1QSvmFnCJFj6zBCQ71HCOOl2",
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 4,
@@ -40,8 +40,8 @@
     "level": "Level 2",
     "matricule": "SIU004",
     "admissionYear": "2025",
-    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
-    "createdAt": "2026-11-26T22:47:35.869Z"
+    "passwordHash": "$2b$10$NJz7Vho7ygO2i9b67X7hoemOHBnfE1QSvmFnCJFj6zBCQ71HCOOl2",
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 5,
@@ -51,18 +51,7 @@
     "level": "Level 2",
     "matricule": "SIU005",
     "admissionYear": "2025",
-    "passwordHash": "$2b$10$jTcPbIfnxfd5zcfWzdzOzOlMQVCeflFIVXhf2nMf1aRfOM.V2Tgc2",
-    "createdAt": "2026-11-26T22:47:35.869Z"
-  },
-  {
-    "id": 6,
-    "fullName": "NDONG CLEMENT",
-    "sex": "Male",
-    "department": "Software Engineering",
-    "level": "Level 2",
-    "matricule": "SIU25SWE013",
-    "admissionYear": "2025",
-    "passwordHash": "$2b$10$ROeW1lfN4l0fnMexjDARuOOuz0rUHI3AbcJ9oWTo97Ycok8GRrDsG",
-    "createdAt": "2026-11-26T22:52:58.301Z"
+    "passwordHash": "$2b$10$NJz7Vho7ygO2i9b67X7hoemOHBnfE1QSvmFnCJFj6zBCQ71HCOOl2",
+    "createdAt": "2026-11-27T06:55:32.877Z"
   }
 ]

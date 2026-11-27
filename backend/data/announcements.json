@@ -5,7 +5,12 @@
     "tagColor": "",
     "title": "Welcome to the new academic session!",
     "body": "Stay connected to SIU One for important academic updates.",
-    "author": "University Administration"
+    "author": "University Administration",
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 2,
@@ -13,6 +18,11 @@
     "tagColor": "orange",
     "title": "Welcome back, Doers!",
     "body": "Let's make this academic year productive and memorable.",
-    "author": "Student Board"
+    "author": "Student Board",
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:54:32.877Z"
   }
 ]

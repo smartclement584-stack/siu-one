@@ -9,7 +9,7 @@ function GradeSimulator({ onBack }) {
   // The route guard guarantees a verified student session here.
   const { user } = useAuth();
   const currentStudentMatricule = user.matricule;
-  const [disciplines, setDisciplines] = useState([]);
+  const [disciplines, setDisciplines] = useState(null); // null = loading
 
   useEffect(() => {
     let cancelled = false;
@@ -194,12 +194,16 @@ function GradeSimulator({ onBack }) {
               >
                 <option value="">Choose a discipline</option>
 
-                {disciplines.map((discipline) => (
+                {disciplines?.map((discipline) => (
                   <option key={discipline} value={discipline}>
                     {discipline}
                   </option>
                 ))}
               </select>
+
+              {disciplines?.length === 0 && (
+                <small>No courses have been set up for your class yet.</small>
+              )}
             </div>
 
             {/* EXISTING SCORES */}

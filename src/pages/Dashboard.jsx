@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import "../App.css";
 import { useAuth } from "../auth/useAuth";
 import { ScrollLink, ComingSoon } from "../components/NavItems";
+import AttendanceRecords from "../components/AttendanceRecords";
+import { todayIso } from "../dates";
 import {
   reportError,
   getStudentAttendance,
@@ -9,6 +11,7 @@ import {
   getAnnouncements,
   getEvents,
   getCourses,
+  getDisputes,
 } from "../api";
 
 function Dashboard({ onLogout, onOpenGradeSimulator }) {
@@ -20,6 +23,7 @@ function Dashboard({ onLogout, onOpenGradeSimulator }) {
   const [announcements, setAnnouncements] = useState([]);
   const [events, setEvents] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [disputes, setDisputes] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,14 +34,16 @@ function Dashboard({ onLogout, onOpenGradeSimulator }) {
       getAnnouncements(),
       getEvents(),
       getCourses(),
+      getDisputes(),
     ])
-      .then(([attendance, goal, announcementList, eventList, courseList]) => {
+      .then(([attendance, goal, announcementList, eventList, courseList, disputeList]) => {
         if (cancelled) return;
         setSummary(attendance);
         setAcademicGoal(goal);
         setAnnouncements(announcementList);
         setEvents(eventList);
         setCourses(courseList);
+        setDisputes(disputeList);
       })
       .catch((error) => {
         if (!cancelled) reportError(error);
@@ -54,6 +60,8 @@ function Dashboard({ onLogout, onOpenGradeSimulator }) {
   const lateCount = summary?.lateCount ?? 0;
   const attendanceByDiscipline = summary?.attendanceByDiscipline ?? {};
   const attendancePercentage = summary?.attendancePercentage;
+  const today = todayIso();
+  const upcomingEvents = events.filter((event) => event.eventDate >= today);
 
   const stats = [
     {
@@ -69,8 +77,19 @@ function Dashboard({ onLogout, onOpenGradeSimulator }) {
         attendancePercentage == null ? "—" : `${attendancePercentage}%`,
       detail: "Overall attendance",
     },
-    { icon: "🏆", label: "Current GPA", value: "3.82", detail: "Academic performance" },
-    { icon: "📝", label: "Assignments", value: "04", detail: "Pending submissions" },
+    {
+      icon: "📅",
+      label: "Upcoming Events",
+      value: String(upcomingEvents.length).padStart(2, "0"),
+      detail: "On the calendar",
+    },
+    {
+      icon: "🏆",
+      label: "Grade Simulator",
+      value: "→",
+      detail: "Plan your final exam score",
+      onClick: onOpenGradeSimulator,
+    },
   ];
 
   return (
@@ -108,7 +127,9 @@ function Dashboard({ onLogout, onOpenGradeSimulator }) {
         <header className="dashboard-header">
           <div>
             <h2>Welcome back, Doer! 👋</h2>
-            <p>Software Engineering · Year 2</p>
+            <p>
+              {user.profile.department} · {user.profile.level.replace("Level", "Year")}
+            </p>
           </div>
 
           <div className="dashboard-user">
@@ -167,16 +188,10 @@ function Dashboard({ onLogout, onOpenGradeSimulator }) {
           <div className="stats-grid">
             {stats.map((stat) => (
               <article
-  className={`stat-card ${
-    stat.label === "Current GPA" ? "clickable-stat" : ""
-  }`}
-  key={stat.label}
-  onClick={
-    stat.label === "Current GPA"
-      ? onOpenGradeSimulator
-      : undefined
-  }
->
+                className={`stat-card ${stat.onClick ? "clickable-stat" : ""}`}
+                key={stat.label}
+                onClick={stat.onClick}
+              >
                 <div className="stat-top">
                   <span className="stat-icon">{stat.icon}</span>
                   <span className="stat-dot">●</span>
@@ -198,15 +213,19 @@ function Dashboard({ onLogout, onOpenGradeSimulator }) {
               <ComingSoon>View calendar →</ComingSoon>
             </div>
 
-            {events.map((event) => (
+            {summary && upcomingEvents.length === 0 && (
+              <p className="attendance-empty">No upcoming events.</p>
+            )}
+
+            {upcomingEvents.map((event) => (
               <div className="event-item" key={event.id}>
                 <div className="event-date">
                   <strong>{event.date}</strong>
-                  <span>{event.day}</span>
+                  <span>{event.month}</span>
                 </div>
                 <div>
                   <strong>{event.title}</strong>
-                  <p>{event.time}</p>
+                  <p>{event.day} · {event.time}</p>
                 </div>
               </div>
             ))}
@@ -217,6 +236,10 @@ function Dashboard({ onLogout, onOpenGradeSimulator }) {
               <h3>Latest Announcements</h3>
               <ComingSoon>View all →</ComingSoon>
             </div>
+
+            {summary && announcements.length === 0 && (
+              <p className="attendance-empty">No announcements yet.</p>
+            )}
 
             {announcements.map((announcement) => (
               <article className="announcement-item" key={announcement.id}>
@@ -316,6 +339,21 @@ function Dashboard({ onLogout, onOpenGradeSimulator }) {
     )}
   </div>
 </section>
+
+          <section className="dashboard-section attendance-records">
+            <div className="section-heading">
+              <h3>Attendance Records</h3>
+              <span>Report anything that looks wrong</span>
+            </div>
+
+            {summary && (
+              <AttendanceRecords
+                records={summary.sessions}
+                disputes={disputes}
+                onDisputed={(dispute) => setDisputes((previous) => [dispute, ...previous])}
+              />
+            )}
+          </section>
 
         </div>
 

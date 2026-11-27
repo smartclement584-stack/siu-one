@@ -92,6 +92,16 @@ export async function delegateLogin(delegateId, password) {
   return data;
 }
 
+export async function staffLogin(staffId, password) {
+  const data = await request("/auth/staff-login", {
+    method: "POST",
+    body: { staffId, password },
+    auth: false,
+  });
+  setToken(data.token, false);
+  return data;
+}
+
 export const getMe = () => request("/auth/me");
 
 // Data
@@ -102,8 +112,39 @@ export const saveSession = (session) =>
 export const getStudentAttendance = (matricule) =>
   request(`/attendance/student/${enc(matricule)}`);
 export const getAnnouncements = () => request("/announcements");
+export const createAnnouncement = (item) =>
+  request("/announcements", { method: "POST", body: item });
+export const updateAnnouncement = (id, changes) =>
+  request(`/announcements/${enc(id)}`, { method: "PATCH", body: changes });
+export const deleteAnnouncement = (id) =>
+  request(`/announcements/${enc(id)}`, { method: "DELETE" });
+
 export const getEvents = () => request("/events");
+export const createEvent = (item) => request("/events", { method: "POST", body: item });
+export const updateEvent = (id, changes) =>
+  request(`/events/${enc(id)}`, { method: "PATCH", body: changes });
+export const deleteEvent = (id) => request(`/events/${enc(id)}`, { method: "DELETE" });
+
 export const getGoal = (matricule) => request(`/goals/${enc(matricule)}`);
 export const saveGoal = (matricule, goal) =>
   request(`/goals/${enc(matricule)}`, { method: "PUT", body: goal });
 export const getCourses = () => request("/courses");
+export const createCourse = (course) =>
+  request("/courses", { method: "POST", body: course });
+export const updateCourse = (id, changes) =>
+  request(`/courses/${enc(id)}`, { method: "PATCH", body: changes });
+export const getStaff = () => request("/staff");
+
+export const getClassSessions = () => request("/class-sessions");
+export const createClassSession = (session) =>
+  request("/class-sessions", { method: "POST", body: session });
+export const cancelClassSession = (id) =>
+  request(`/class-sessions/${enc(id)}`, { method: "DELETE" });
+
+// status: "open" | "approved" | "rejected" | "all" (omit for the role's default)
+export const getDisputes = (status) =>
+  request(status ? `/disputes?status=${enc(status)}` : "/disputes");
+export const createDispute = (dispute) =>
+  request("/disputes", { method: "POST", body: dispute });
+export const resolveDispute = (id, decision) =>
+  request(`/disputes/${enc(id)}`, { method: "PATCH", body: decision });

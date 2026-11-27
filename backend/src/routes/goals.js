@@ -1,23 +1,24 @@
 import { Router } from "express";
 import { readJSON, writeJSON } from "../db.js";
-import { requireAuth, requireSelfOrStaff } from "../middleware/auth.js";
+import { requireAuth, requireSelf } from "../middleware/auth.js";
+import { visibleCourses } from "../access.js";
 
 const router = Router();
 
 // Responds with the saved goal, or null when the student has none yet.
-router.get("/:matricule", requireAuth, requireSelfOrStaff, (req, res) => {
+router.get("/:matricule", requireAuth, requireSelf, (req, res) => {
   const matricule = req.params.matricule.trim().toUpperCase();
   res.json(readJSON("goals").find((g) => g.matricule === matricule) || null);
 });
 
-router.put("/:matricule", requireAuth, requireSelfOrStaff, (req, res) => {
+router.put("/:matricule", requireAuth, requireSelf, (req, res) => {
   const matricule = req.params.matricule.trim().toUpperCase();
   const { discipline, target, requiredFinal } = req.body;
 
   if (!readJSON("students").some((s) => s.matricule === matricule)) {
     return res.status(404).json({ error: "Student not found." });
   }
-  if (!readJSON("courses").some((c) => c.name === discipline)) {
+  if (!visibleCourses(req.user).some((c) => c.name === discipline)) {
     return res.status(400).json({ error: "Unknown discipline." });
   }
   const targetNum = Number(target);

@@ -1,11 +1,29 @@
-import { Router } from "express";
-import { readJSON } from "../db.js";
-import { requireAuth } from "../middleware/auth.js";
+import { contentRouter, checkText } from "../contentRouter.js";
 
-const router = Router();
+const TAG_COLORS = ["", "orange"]; // "" is the default green tag
 
-router.get("/", requireAuth, (req, res) => {
-  res.json(readJSON("announcements"));
+export default contentRouter({
+  file: "announcements",
+  label: "Announcement",
+  fields: ["tag", "tagColor", "title", "body", "author"],
+  validate(values) {
+    values.tag = values.tag.toUpperCase();
+    if (!TAG_COLORS.includes(values.tagColor)) return "Invalid tag colour.";
+    return checkText(values, [
+      ["tag", "Tag", 20],
+      ["title", "Title", 120],
+      ["body", "Message", 1000],
+      ["author", "Author", 60],
+    ]);
+  },
+  // Newest first.
+  compare: (a, b) => b.createdAt.localeCompare(a.createdAt) || b.id - a.id,
+  toResponse: ({ id, tag, tagColor, title, body, author }) => ({
+    id,
+    tag,
+    tagColor,
+    title,
+    body,
+    author,
+  }),
 });
-
-export default router;

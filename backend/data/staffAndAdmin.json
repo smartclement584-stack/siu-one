@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "staffId": "STF001",
+    "role": "staff",
+    "userType": "Lecturer",
+    "fullName": "Demo Lecturer",
+    "department": "Software Engineering",
+    "passwordHash": "$2b$10$KbImLYMRwo2dWeEgHrewzOf2N.TR.GShhsolrpTtqL0qj7y9C9/bG"
+  },
+  {
+    "id": 2,
+    "staffId": "ADM001",
+    "role": "admin",
+    "userType": "Administration",
+    "fullName": "Demo Administrator",
+    "department": null,
+    "passwordHash": "$2b$10$PMsWpg7xjUoG1c7ENYd8cOypiLihixwPDZnTFOxzcxgAlw..SdVOG"
+  }
+]

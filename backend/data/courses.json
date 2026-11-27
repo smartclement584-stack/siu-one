@@ -1,26 +1,145 @@
 [
   {
     "id": 1,
-    "name": "Mathematics"
+    "name": "Mathematics",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "staffId": null,
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 2,
-    "name": "Database Systems"
+    "name": "Database Systems",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "staffId": "STF001",
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 3,
-    "name": "Web Development"
+    "name": "Web Development",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "staffId": "STF001",
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 4,
-    "name": "Data Structures and Algorithms"
+    "name": "Data Structures and Algorithms",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "staffId": null,
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 5,
-    "name": "Linux Fundamentals"
+    "name": "Linux Fundamentals",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "staffId": null,
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
   },
   {
     "id": 6,
-    "name": "Software Engineering"
+    "name": "Software Engineering",
+    "department": "Software Engineering",
+    "level": "Level 2",
+    "staffId": "STF001",
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
+  },
+  {
+    "id": 7,
+    "name": "Programming Fundamentals",
+    "department": "Software Engineering",
+    "level": "Level 1",
+    "staffId": null,
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
+  },
+  {
+    "id": 8,
+    "name": "Network Security Basics",
+    "department": "Cybersecurity",
+    "level": "Level 1",
+    "staffId": null,
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
+  },
+  {
+    "id": 9,
+    "name": "Linux Fundamentals",
+    "department": "Cybersecurity",
+    "level": "Level 1",
+    "staffId": null,
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
+  },
+  {
+    "id": 10,
+    "name": "Principles of Management",
+    "department": "Business",
+    "level": "Level 1",
+    "staffId": null,
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
+  },
+  {
+    "id": 11,
+    "name": "Business Mathematics",
+    "department": "Business",
+    "level": "Level 1",
+    "staffId": null,
+    "active": true,
+    "createdBy": {
+      "id": "seed",
+      "role": "admin"
+    },
+    "createdAt": "2026-11-27T06:55:32.877Z"
   }
 ]

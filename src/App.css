@@ -1509,6 +1509,10 @@ footer {
   transition: 0.25s ease;
 }
 
+.clickable-stat {
+  cursor: pointer;
+}
+
 .stat-icon {
   background: #e2f3e8;
 }
@@ -2523,4 +2527,247 @@ textarea {
   place-items: center;
   color: #11603f;
   font-weight: 600;
+}
+
+/* Staff, admin and dispute screens */
+.portal-section {
+  margin-bottom: 24px;
+}
+
+.portal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.delegate-report-actions.portal-actions {
+  justify-content: flex-end;
+}
+
+.portal-button {
+  padding: 9px 15px;
+  border: 1px solid #08794b;
+  border-radius: 8px;
+  background: #08794b;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.portal-button.secondary {
+  background: #ffffff;
+  color: #08794b;
+}
+
+.portal-button.secondary.chosen {
+  background: #e2f3e8;
+}
+
+.portal-button.danger {
+  border-color: #c44c3b;
+  background: #fff0ed;
+  color: #a8321f;
+}
+
+.portal-button:disabled,
+.delegate-save-session:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.dispute-pill {
+  padding: 6px 11px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.dispute-pill.open {
+  background: #fff2df;
+  color: #8f590f;
+}
+
+.dispute-pill.approved {
+  background: #e2f3e8;
+  color: #08794b;
+}
+
+.dispute-pill.rejected {
+  background: #fff0ed;
+  color: #a8321f;
+}
+
+.attendance-history-item.dispute-item {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.dispute-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.dispute-text {
+  overflow-wrap: anywhere;
+}
+
+.dispute-decision {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dispute-decision input {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.dispute-decision input,
+.dispute-form select,
+.dispute-form textarea {
+  padding: 10px 12px;
+  border: 1px solid #dce7df;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #10251a;
+  font-size: 13px;
+}
+
+.dispute-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dispute-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #52645a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dispute-form textarea {
+  resize: vertical;
+  font-weight: 400;
+}
+
+.attendance-records {
+  grid-column: 1 / -1;
+  margin: 0 0 24px;
+}
+
+/* Admin content editor */
+.delegate-session-fields > .field-wide {
+  grid-column: 1 / -1;
+}
+
+.delegate-session-fields textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dce7df;
+  border-radius: 10px;
+  background: #f8faf8;
+  color: #10251a;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.content-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Student-written and admin-written text must wrap, not overflow */
+.announcement-item,
+.event-item > div:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* =====================================
+   SIU ONE — PHONE FIXES (375-390px)
+===================================== */
+
+@media (max-width: 720px) {
+  /* Keep Sign Out reachable: pin it to the top bar. */
+  .dashboard-sidebar,
+  .delegate-sidebar {
+    position: relative;
+  }
+
+  .dashboard-sidebar .sidebar-bottom,
+  .delegate-sidebar .delegate-sidebar-bottom {
+    display: block;
+    position: absolute;
+    top: 18px;
+    right: 16px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .dashboard-sidebar .sidebar-bottom p,
+  .delegate-sidebar .delegate-sidebar-bottom p {
+    display: none;
+  }
+
+  /* Show every portal tab instead of hiding some off-screen. */
+  .delegate-sidebar .delegate-nav {
+    flex-wrap: wrap;
+  }
+
+  .delegate-sidebar .delegate-nav a {
+    padding: 10px 12px;
+  }
+
+  .delegate-student-panel + .delegate-student-panel {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Attendance rows stack, so the status buttons are always on screen. */
+  .delegate-table-heading {
+    display: none;
+  }
+
+  .delegate-student-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-width: 0;
+    row-gap: 10px;
+  }
+
+  .delegate-status-actions {
+    grid-column: 1 / -1;
+  }
+
+  .delegate-status-actions .status-button {
+    flex: 1;
+    min-height: 40px;
+  }
+
+  .delegate-report-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .delegate-report-actions > button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  /* All five landing-page links fit without scrolling. */
+  .header-inner .navigation {
+    gap: 0;
+    justify-content: space-between;
+  }
 }
